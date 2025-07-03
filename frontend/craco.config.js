@@ -1,7 +1,7 @@
 module.exports = {
   webpack: {
     configure: (webpackConfig) => {
-      // Increase memory limit for TypeScript type checking
+      // Disable TypeScript type checking to reduce memory usage during development
       const tsLoader = webpackConfig.module.rules.find(
         (rule) => rule.oneOf
       );
@@ -14,20 +14,16 @@ module.exports = {
         if (tsRule) {
           tsRule.options = {
             ...tsRule.options,
-            transpileOnly: false,
-            experimentalWatchApi: false,
+            transpileOnly: true, // Set to true to skip type checking
+            experimentalWatchApi: true, // Enable experimental watch API for better performance
           };
         }
       }
 
-      // Increase memory limit for the type checker
-      const forkTsChecker = webpackConfig.plugins.find(
-        (plugin) => plugin.constructor.name === 'ForkTsCheckerWebpackPlugin'
+      // Disable fork-ts-checker-webpack-plugin to save memory
+      webpackConfig.plugins = webpackConfig.plugins.filter(
+        (plugin) => plugin.constructor.name !== 'ForkTsCheckerWebpackPlugin'
       );
-      
-      if (forkTsChecker) {
-        forkTsChecker.options.memoryLimit = 4096;
-      }
 
       return webpackConfig;
     },

@@ -58,5 +58,17 @@
     "metadata": {
       "parentResourceId": ""
     }
+  },
+  {
+    "level": "info",
+    "message": "fffffffffffff",
+    "resourceId": " ",
+    "timestamp": "2025-07-03T11:02:33.952Z",
+    "traceId": "trace-btel7tylu",
+    "spanId": "span-80ts0",
+    "commit": "0b4d98c",
+    "metadata": {
+      "parentResourceId": ""
+    }
   }
 ]

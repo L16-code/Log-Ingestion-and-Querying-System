@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { Box, Container, Typography, Button, Paper, Snackbar, Alert } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+import { Box, Container, Typography, Button, Snackbar, Alert } from '@mui/material';
+
 import { Add as AddIcon, Refresh as RefreshIcon } from '@mui/icons-material';
 import FilterBar from '../components/FilterBar';
 import LogList from '../components/LogList';
@@ -9,7 +9,7 @@ import useLogs from '../hooks/useLogs';
 import { LogEntry } from '../types/log.types';
 
 const DashboardPage: React.FC = () => {
-  const theme = useTheme();
+  // Removed unused theme variable
   const [showIngestForm, setShowIngestForm] = useState(false);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
@@ -102,7 +102,7 @@ const DashboardPage: React.FC = () => {
         <LogList
           logs={logs}
           isLoading={isLoading}
-          error={error}
+          error={error instanceof Error ? error : error ? new Error(String(error)) : null}
           page={page}
           rowsPerPage={rowsPerPage}
           totalCount={totalCount}

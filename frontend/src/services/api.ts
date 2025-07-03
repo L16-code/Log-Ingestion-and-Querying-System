@@ -3,7 +3,7 @@ import { LogEntry, LogFilters } from '../types/log.types';
 
 // Create an axios instance with default config
 const api = axios.create({
-  baseURL: 'http://localhost:3000/api', // Default to local development
+  baseURL: 'http://localhost:4000/api', // Default to local development
   headers: {
     'Content-Type': 'application/json',
   },

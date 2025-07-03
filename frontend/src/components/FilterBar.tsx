@@ -55,13 +55,43 @@ const FilterBar: React.FC<FilterBarProps> = ({
     timestamp_end: initialFilters.timestamp_end,
   });
 
+  // Define applyFilters first so it can be used in other functions
+  const applyFilters = useCallback(() => {
+    // Only include non-empty values in the filters sent to the API
+    const cleanFilters = Object.entries(filters).reduce((acc, [key, value]) => {
+      if (value !== '' && value !== null && value !== undefined) {
+        return { ...acc, [key]: value };
+      }
+      return acc;
+    }, {} as Partial<LogFilters>);
+    
+    // Update parent component with clean filters only
+    onFilterChange(cleanFilters);
+  }, [filters, onFilterChange]);
+
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFilters((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  }, []);
+    
+    setFilters(prev => {
+      // Create a new filters object
+      const newFilters = { ...prev };
+      
+      if (value === '') {
+        // Remove the key entirely if value is empty
+        delete newFilters[name as keyof LogFilters];
+      } else {
+        // Update with new value
+        newFilters[name as keyof LogFilters] = value;
+      }
+      
+      // Return new filters to update state
+      return newFilters;
+    });
+    
+    // Schedule applyFilters to run after state update
+    // This ensures we use the correctly updated filters
+    setTimeout(() => applyFilters(), 10);
+  }, [applyFilters]);
 
   const handleDateChange = (name: 'timestamp_start' | 'timestamp_end', date: Date | null) => {
     setFilters((prev) => ({
@@ -69,16 +99,6 @@ const FilterBar: React.FC<FilterBarProps> = ({
       [name]: date ? date.toISOString() : undefined,
     }));
   };
-
-  const applyFilters = useCallback(() => {
-    const cleanFilters = Object.entries(filters).reduce((acc, [key, value]) => {
-      if (value !== '' && value !== null && value !== undefined) {
-        return { ...acc, [key]: value };
-      }
-      return acc;
-    }, {} as Partial<LogFilters>);
-    onFilterChange(cleanFilters);
-  }, [filters, onFilterChange]);
 
   const handleClearFilters = useCallback(() => {
     const resetFilters = {
@@ -135,6 +155,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
             select
             fullWidth
             label="Log Level"
+            placeholder="Select Log Level"
             name="level"
             value={filters.level || ''}
             onChange={handleInputChange}

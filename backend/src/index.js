@@ -8,7 +8,7 @@ const fs = require('fs').promises;
 const logRoutes = require('./routes/logs');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 
 // Ensure logs directory exists
 const LOGS_DIR = path.join(__dirname, '../../logs');

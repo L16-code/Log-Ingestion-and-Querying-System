@@ -28,17 +28,12 @@ const useLogs = ({ initialFilters = {}, pageSize = 10 }: UseLogsOptions = {}) =>
     };
   }, [filters]);
 
-  // Define query keys
-  const logsQueryKey = [
-    QUERY_KEYS.LOGS, 
-    { ...debouncedFilters, page, rowsPerPage }
-  ] as const;
-  
-  const logsCountQueryKey = [
-    QUERY_KEYS.LOGS, 
-    'count', 
-    debouncedFilters
-  ] as const;
+  // Define params object for query
+  const queryParams = {
+    ...debouncedFilters,
+    page,
+    rowsPerPage
+  };
 
   // Fetch logs using React Query with proper typing
   const {
@@ -46,14 +41,15 @@ const useLogs = ({ initialFilters = {}, pageSize = 10 }: UseLogsOptions = {}) =>
     isLoading,
     error,
     refetch,
-  } = useQuery({
-    queryKey: logsQueryKey,
-    queryFn: async ({ queryKey }) => {
-      // Extract filters from query key
-      const [, { page: currentPage, rowsPerPage: currentRowsPerPage, ...filters }] = queryKey as [
-        string, 
-        { page: number; rowsPerPage: number } & Partial<LogFilters>
-      ];
+  } = useQuery<LogEntry[], Error>({
+    queryKey: [QUERY_KEYS.LOGS, queryParams],
+    queryFn: async () => {
+      // Extract params for pagination
+      const currentPage = queryParams.page;
+      const currentRowsPerPage = queryParams.rowsPerPage;
+      
+      // Create a clean filters object without pagination params
+      const { page: _, rowsPerPage: __, ...filters } = queryParams;
       
       // In a real app, the API would support pagination
       // For now, we'll handle pagination client-side
@@ -64,14 +60,13 @@ const useLogs = ({ initialFilters = {}, pageSize = 10 }: UseLogsOptions = {}) =>
       const end = start + currentRowsPerPage;
       return allLogs.slice(start, end) as LogEntry[];
     },
-    // Use placeholderData instead of keepPreviousData in React Query v5
-    placeholderData: (previousData) => previousData ?? [],
+    placeholderData: (previousData: LogEntry[] | undefined) => previousData ?? [],
     refetchOnWindowFocus: false,
   });
 
   // Get total count for pagination
-  const { data: allLogs = [] } = useQuery({
-    queryKey: logsCountQueryKey,
+  const { data: allLogs = [] } = useQuery<LogEntry[], Error>({
+    queryKey: [QUERY_KEYS.LOGS, 'count', debouncedFilters],
     queryFn: () => logApi.getLogs(debouncedFilters) as Promise<LogEntry[]>,
     refetchOnWindowFocus: false,
   });
@@ -92,10 +87,9 @@ const useLogs = ({ initialFilters = {}, pageSize = 10 }: UseLogsOptions = {}) =>
 
   // Handle filter change
   const handleFilterChange = useCallback((newFilters: Partial<LogFilters>) => {
-    setFilters(prev => ({
-      ...prev,
-      ...newFilters,
-    }));
+    // Replace filters entirely instead of merging
+    // This ensures removed filters are properly cleared
+    setFilters(newFilters);
   }, []);
 
   // Refresh logs

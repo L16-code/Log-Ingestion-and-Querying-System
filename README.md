@@ -65,7 +65,7 @@ This system provides a centralized platform for:
    ```bash
    npm start
    ```
-   The server will start on `http://localhost:3000`
+   The server will start on `http://localhost:4000`
 
 ### Start the Frontend Development Server
 
@@ -73,7 +73,7 @@ This system provides a centralized platform for:
    ```bash
    npm start
    ```
-   The application will open in your default browser at `http://localhost:3001`
+   The application will open in your default browser at `http://localhost:3000`
 
 ## API Endpoints
 
